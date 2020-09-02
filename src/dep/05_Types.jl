@@ -57,14 +57,24 @@ iden(3.0) # returns 3.0
 
 # Generic (but type-instable)
 struct GenericAffine
-    a::Real
-    b::Real
+    a
+    b
 end
-
 (l::GenericAffine)(x) = l.a*x + l.b
 gen_iden = GenericAffine(1, 0)
 gen_iden(3)
 @code_warntype gen_iden(3)
+
+
+struct RealAffine
+    a::Real
+    b::Real
+end
+
+(l::RealAffine)(x) = l.a*x + l.b
+real_iden = RealAffine(1, 0)
+real_iden(3)
+@code_warntype real_iden(3)
 
 # Generic and type stable
 struct ParametricAffine{T1, T2}
@@ -77,27 +87,27 @@ par_iden = ParametricAffine(1, 0)
 par_iden(3)
 @code_warntype par_iden(3)
 
-using BenchmarkTools
-@btime iden(3.0)
-@btime gen_iden(3)
-@btime par_iden(3)
-
-
 # However, you might want to restrict the parameters
 par_wrong = ParametricAffine("hello", 0)
 par_wrong(3)
 
 # Can also restrict type parameters (even better)
-struct RealAffine{T1 <: Real, T2 <: Real}
+struct ParametricRealAffine{T1 <: Real, T2 <: Real}
     a::T1
     b::T2
 end
 
-(l::RealAffine)(x) = l.a*x + l.b
-real_iden = RealAffine(1//1, 0)
-RealAffine("a", 0) # gives error
-real_iden(3)
-@code_warntype real_iden(3)
+(l::ParametricRealAffine)(x) = l.a*x + l.b
+parreal_iden = ParametricRealAffine(1//1, 0)
+ParametricRealAffine("a", 0) # gives error
+parreal_iden(3)
+@code_warntype parreal_iden(3)
+
+using BenchmarkTools
+@btime iden(3.0)
+@btime gen_iden(3)
+@btime real_iden(3)
+@btime par_iden(3)
 
 #############################
 # Type hierarchy and function compositions
@@ -223,14 +233,14 @@ end
 @btime nth_derivative(4)($myparabola)(3)
 @btime nth_derivative(8)($myparabola)(3)
 
-@generated function nth_generated(::Type{Val{n}}) where {n}
+@generated function nth_generated(::Val{n}) where {n}
     if n == 0
         return (x) -> x
     else
-        return nth_generated(Val{n-1}) ∘ derivative 
+        return nth_generated(Val(n-1)) ∘ derivative 
     end
 end
-nth_generated(n::Integer) = nth_generated(Val{n})
+nth_generated(n::Integer) = nth_generated(Val(n))
 
 @btime nth_generated(0)($myparabola)(3)
 @btime nth_generated(4)($myparabola)(3)

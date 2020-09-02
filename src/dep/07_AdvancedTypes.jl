@@ -115,15 +115,3 @@ nth_generated(n::Integer) = nth_generated(Val{n})
 
 
 # Could have done this using metaprogramming
-
-
-
-
-function f(x)
-    if x < 0
-        @error "myerror"
-    else
-        println("all good")
-    end
-end
-export f
