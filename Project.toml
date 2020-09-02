@@ -1,0 +1,10 @@
+name = "JuliaTutorial"
+uuid = "f8c21294-cf4a-11e9-00f6-f9fcdf2f89d7"
+authors = ["Riccardo Cioffi <ric.cioffi90@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Traceur = "37b6cedf-1f77-55f8-9503-c64b63398394"
