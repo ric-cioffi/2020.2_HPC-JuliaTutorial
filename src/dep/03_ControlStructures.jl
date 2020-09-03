@@ -15,6 +15,9 @@ else
     println("x is equal to y")
 end
 
+x < y ? println("x is less than y") : println("x is not less than y")
+
+
 # Loops
 
 for i in 1:5

@@ -138,6 +138,11 @@ methods(foo)
 foo(var1,var2) = var1+var2+1
 methods(foo)
 
+f(x, y) = x + y
+f(x::Float64, y::Float64) = x^2 + y^2
+f(x::Int64, y::Float64) = x - y
+foobar(x::Int, y = 1) = x + y
+
 # Broadcasting
 a = [1, 2, 3]
 foo.(a)
