@@ -104,14 +104,14 @@ end
 
 
 
-@generated function nth_generated(::Type{Val{n}}) where {n}
+@generated function nth_generated(::Val{n}) where {n}
     if n == 0
         return (x) -> x
     else
-        return nth_generated(Val{n-1}) ∘ derivative
+        return nth_generated(Val(n-1)) ∘ derivative 
     end
 end
-nth_generated(n::Integer) = nth_generated(Val{n})
+nth_generated(n::Integer) = nth_generated(Val(n))
 
 
 # Could have done this using metaprogramming
