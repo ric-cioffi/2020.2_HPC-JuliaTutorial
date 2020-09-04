@@ -5,7 +5,7 @@ using JuliaTutorial, Test
     @test Order1(1//1, 2)(3) == 7
     @test Order2(3, 4, 5)(10) == 3 + 40 + 500
 
-    @test_broken Order0(4.0)(rand()) == 3.0
+    @test_broken Order0(4.0)(rand()) == 4.0
 end
 
 @testset "cubic solution tests" begin
