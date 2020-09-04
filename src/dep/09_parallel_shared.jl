@@ -1,3 +1,5 @@
+# This file can be run either directly from the REPL or as a script
+
 #--------------------------------#
 #         House-keeping          #
 #--------------------------------#
@@ -171,7 +173,6 @@ function main_shared()
 
     print(" \n")
     print("Life cycle computation: \n")
-    print(" \n")
 
     start = Dates.unix2datetime(time())
 
@@ -200,11 +201,12 @@ function main_shared()
       print("Age: ", age, ". Time: ", finish, " seconds. \n")
     end
 
-    print("\n")
     finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
-    print("TOTAL ELAPSED TIME: ", finish, " seconds. \n")
+    println("TOTAL ELAPSED TIME: ", finish, " seconds.")
+    println()
 end
 
+println()
 println("first run is for compilaton")
 main_shared()
 

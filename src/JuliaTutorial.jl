@@ -4,7 +4,6 @@ using BenchmarkTools, Debugger, Traceur
 
 include("./dep/07_AdvancedTypes.jl")
 include("./dep/08_solve_cubic.jl")
-include("./dep/09_parallel.jl")
 
 greet() = print("Hello World!")
 
