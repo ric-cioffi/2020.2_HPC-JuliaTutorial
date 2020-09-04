@@ -17,6 +17,10 @@ end
 
 x < y ? println("x is less than y") : println("x is not less than y")
 
+x < y && println("x is smaller than y")
+x > y || println("x is not greater than y")
+
+x < y && (z = x)
 
 # Loops
 

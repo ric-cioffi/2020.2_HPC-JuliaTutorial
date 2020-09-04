@@ -9,7 +9,7 @@ struct NewType end
 struct NewNumber <: Number end
 
 # Define a composite type
-struct Dual
+struct Dual <: Number
     value::Float64
     deriv::Float64
 end
@@ -61,7 +61,7 @@ struct GenericAffine
     b
 end
 (l::GenericAffine)(x) = l.a*x + l.b
-gen_iden = GenericAffine(1, 0)
+gen_iden = GenericAffine(1.0, 0.0)
 gen_iden(3)
 @code_warntype gen_iden(3)
 
@@ -72,7 +72,7 @@ struct RealAffine
 end
 
 (l::RealAffine)(x) = l.a*x + l.b
-real_iden = RealAffine(1, 0)
+real_iden = RealAffine(1.0, 0.0)
 real_iden(3)
 @code_warntype real_iden(3)
 
@@ -83,7 +83,7 @@ struct ParametricAffine{T1, T2}
 end
 
 (l::ParametricAffine)(x) = l.a*x + l.b
-par_iden = ParametricAffine(1, 0)
+par_iden = ParametricAffine(1.0, 0.0)
 par_iden(3)
 @code_warntype par_iden(3)
 
@@ -101,13 +101,16 @@ end
 parreal_iden = ParametricRealAffine(1//1, 0)
 ParametricRealAffine("a", 0) # gives error
 parreal_iden(3)
+parreal_iden = ParametricRealAffine(1.0, 0.0)
 @code_warntype parreal_iden(3)
 
 using BenchmarkTools
 @btime iden(3.0)
-@btime gen_iden(3)
-@btime real_iden(3)
-@btime par_iden(3)
+@btime gen_iden(3.0)
+@btime real_iden(3.0)
+@btime par_iden(3.0)
+@btime parreal_iden(3.0)
+
 
 #############################
 # Type hierarchy and function compositions
@@ -228,10 +231,11 @@ end
 
 # Type stability is not all that matters, recursion usually badly scales up
 
-@btime nth_derivative(0)($myparabola)(3)
-@btime nth_derivative(2)($myparabola)(3)
-@btime nth_derivative(4)($myparabola)(3)
-@btime nth_derivative(8)($myparabola)(3)
+@btime nth_derivative(0)($myparabola)(3);
+@btime nth_derivative(1)($myparabola)(3);
+@btime nth_derivative(2)($myparabola)(3);
+@btime nth_derivative(4)($myparabola)(3);
+@btime nth_derivative(8)($myparabola)(3);
 
 @generated function nth_generated(::Val{n}) where {n}
     if n == 0
