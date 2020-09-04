@@ -18,7 +18,7 @@ using Compat.Dates
 #--------------------------------#
 
 # Number of threads
-println("started one julia process with $(Threads.nthreads()) threads.")
+println("Running a julia instance with $(Threads.nthreads()) threads.")
 
 #--------------------------------#
 #     Structure and function     #

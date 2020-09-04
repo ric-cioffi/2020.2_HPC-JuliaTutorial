@@ -1,4 +1,9 @@
-# This file can be run either directly from the REPL or as a script
+#!/bin/bash
+#=
+    This file can be run either directly from the REPL or as a script
+    When run as a script you can provide an command-line argument with the
+    total number of processes you'd like the script to be run with    
+=#
 
 #--------------------------------#
 #         House-keeping          #
@@ -17,7 +22,9 @@ using Compat.Dates
 #--------------------------------#
 
 # Number of cores/workers
-addprocs(3)
+isassigned(ARGS, 1) ? n_procs = parse(Int, ARGS[1]) : n_procs = 1
+addprocs(n_procs - 1)
+@info "Running a julia instance with $(nprocs()) process(es)"
 
 
 #--------------------------------#
