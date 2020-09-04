@@ -333,12 +333,12 @@ function main_shared()
         V_tomorrow[ix, ie] = tempV[ind]
       end
 
-      finish = convert(Int, Dates.value_shared(Dates.unix2datetime(time())- start))/1000;
+      finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
       print("Age: ", age, ". Time: ", finish, " seconds. \n")
     end
 
     print("\n")
-    finish = convert(Int, Dates.value_shared(Dates.unix2datetime(time())- start))/1000;
+    finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
     print("TOTAL ELAPSED TIME: ", finish, " seconds. \n")
 end
 
@@ -440,13 +440,13 @@ function main_pmap()
         V_tomorrow[ix, ie] = s[ind]
       end
 
-      finish = convert(Int, Dates.value_pmap(Dates.unix2datetime(time())- start))/1000;
+      finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
       print("Age: ", age, ". Time: ", finish, " seconds. \n")
 
     end
 
     print("\n")
-    finish = convert(Int, Dates.value_pmap(Dates.unix2datetime(time())- start))/1000;
+    finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
     print("TOTAL ELAPSED TIME: ", finish, " seconds. \n")
 end
 
@@ -556,11 +556,11 @@ function main_threads()
         V_tomorrow[ix, ie] = tempV[ind]
       end
 
-      finish = convert(Int, Dates.value_threads(Dates.unix2datetime(time())- start))/1000;
+      finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
       print("Age: ", age, ". Time: ", finish, " seconds. \n")
     end
 
     print("\n")
-    finish = convert(Int, Dates.value_threads(Dates.unix2datetime(time())- start))/1000;
+    finish = convert(Int, Dates.value(Dates.unix2datetime(time())- start))/1000;
     print("TOTAL ELAPSED TIME: ", finish, " seconds. \n")
 end
