@@ -1,6 +1,6 @@
-#############################
+################################################################################
 # Types (basics)
-#############################
+################################################################################
 
 # Define a new type
 struct NewType end
@@ -112,149 +112,61 @@ using BenchmarkTools
 @btime parreal_iden(3.0)
 
 
-#############################
-# Type hierarchy and function compositions
+##############################
+# More on parametric types, method extensions and type conversion/promotion
 
-#=
-Note: One particularly distinctive feature of Julia’s type system is that concrete types may not subtype each other: 
-all concrete types are final and may only have abstract types as their supertypes.
-=#
-
-abstract type Equation end
-abstract type Polynomial <: Equation end
-struct NewOne <: Equation end
-
-struct Order0{T <: Real} <: Polynomial
+struct Const{T <: Real}
     a0::T   # We parameterize Order0 by the type of a0
 end
-(eq::Order0)(x) = eq.a0     # Make every instance of type Order0 callable
+(eq::Const)(x) = eq.a0     # Make every instance of type Order0 callable
 
 # Parametric types:
-a = Order0(1)               # an instance of type Order0{Int64}
+a = Const(1)               # an instance of type Order0{Int64}
 typeof(a)
-b = Order0(1.0)
+b = Const(1.0)
 typeof(b)                   # an instance of type Order0{Float64}
 typeof(a) != typeof(b)      # a and b are both of type Order0 but they are not of the same type
-typeof(a) <: Order0         # Order0{Int64} is both of type Order0 and a subtype of Order0
+typeof(a) <: Const         # Order0{Int64} is both of type Order0 and a subtype of Order0
 supertype(typeof(a))        # Order0{Int64} is a direct subtype of Polynomial
 
-c = Order0(4 + 3im)         # Error: cannot create a instance of Order0{Complex} because we restricted T to be a subtype of real
+c = Const(4 + 3im)         # Error: cannot create a instance of Order0{Complex} because we restricted T to be a subtype of real
 
 a(rand()) == 1
 
 
-struct Order1{T0, T1} <: Polynomial
-    a0::T0
-    a1::T1
 
-    # The inner constructor replaces the default constructor
-    function Order1(a0::T0, a1::T1) where {T0 <: Real, T1 <: Real}
-        if a1 == 0
-            return Order0(a0)
-        else
-            return new{T0, T1}(a0, a1) # create a new instance
-        end
-    end
-end
-(eq::Order1)(x) = eq.a0 + eq.a1*x
-
-a = Order1(2, 1.0)          # an instance of Order1
-b = Order1(2.0, 0)          # this is now an instance of Order0 (because a1 == 0)
-
-a(3) == 5
-
-struct Order2{T0, T1, T2} <: Polynomial
-    a0::T0
-    a1::T1
-    a2::T2
-    function Order2(a0::T0, a1::T1, a2::T2) where {T0 <: Real, T1 <: Real, T2 <: Real}
-        if a2 == 0
-            return Order1(a0, a1)
-        else
-            return new{T0, T1, T2}(a0, a1, a2)
-        end
-    end
-end
-(eq::Order2)(x) = eq.a0 + eq.a1*x + eq.a2*x^2
-
-# Note: the constructors will not be type stable (it depends on the VALUE of a1, not on its type), but it will not matter
-@code_warntype Order1(1, 1) 
-
-myparabola = Order2(1, 2, 3) # the function x -> 3x^2 + 2x + 1, with derivative 6x + 2
-iden = Order2(0, 1, 0) # same as Order1(0, 1)
-
-# Now it becomes interesting
-derivative(eq::Order2) = Order1(eq.a1, 2*eq.a2)
-derivative(eq::Order1) = Order0(eq.a1)
-derivative(eq::Order0) = Order0(0)
-
-derivative(myparabola)
-derivative(derivative(myparabola))
-
-# Function composition
-secondderivative = derivative ∘ derivative
-secondderivative(myparabola)
-
-# Piping 
-myparabola |> derivative |> derivative
-
-derivative(myparabola)(3)
-secondderivative(myparabola)(3)
-
-function nth_derivative(n::Integer) 
-    if n == 0
-        return (x) -> x
-    else
-        return nth_derivative(n - 1) ∘ derivative
-    end
+struct ParDual{T1 <: Real, T2 <: Real} <: Number
+    v::T1
+    d::T2
 end
 
-nth_derivative(0)(myparabola)(3)
-nth_derivative(1)(myparabola)(3//1)
-nth_derivative(2)(myparabola)(3)
-nth_derivative(3)(myparabola)(3)
-nth_derivative(4)(myparabola)(3)
+import Base: +, *
++(x::Number, y::ParDual) = ParDual(x + y.v, y.d)
++(y::ParDual, x::Number) = +(x, y)
++(x::ParDual, y::ParDual) = ParDual(x.v + y.v, x.d + y.d)
 
-@code_warntype nth_derivative(2)(myparabola)(3) # as we said, it didn't matter
+*(x::Number, y::ParDual) = ParDual(x*y.v, x*y.d)
+*(y::ParDual, x::Number) = *(x, y)
+*(x::ParDual, y::ParDual) = ParDual(x.v*y.v, x.v*y.d + x.d*y.v)
 
-# Type-instability WOULD matter here instead:
-struct Order0{T} <: Polynomial
-    a0::T
-    f::Function
-    Order0(a0::T) where {T <: Real} = new{T}(a0, (x) -> a0)
-end
-(eq::Order0)(x) = eq.f(x)
-@code_warntype nth_derivative(2)(myparabola)(3)
+xx = ParDual(3, 1)
+yy = ParDual(4, 3.0)
+2 + xx
+3.3 + xx + yy
+xx*yy + 0.5 + 2*xx
 
-#############################
-# Advanced topics
 
-# Type stability is not all that matters, recursion usually badly scales up
+# Here we define a new method to convert any (real) number into a dual number
+convert(::Type{ParDual}, x::T) where {T <: Real} = ParDual{T, Int}(x, 0)
+convert(ParDual, 2)
+convert(ParDual, 3.4)
+convert(ParDual, 7//2)
 
-@btime nth_derivative(0)($myparabola)(3);
-@btime nth_derivative(1)($myparabola)(3);
-@btime nth_derivative(2)($myparabola)(3);
-@btime nth_derivative(4)($myparabola)(3);
-@btime nth_derivative(8)($myparabola)(3);
 
-@generated function nth_generated(::Val{n}) where {n}
-    if n == 0
-        return (x) -> x
-    else
-        return nth_generated(Val(n-1)) ∘ derivative 
-    end
-end
-nth_generated(n::Integer) = nth_generated(Val(n))
 
-@btime nth_generated(0)($myparabola)(3)
-@btime nth_generated(4)($myparabola)(3)
-@btime nth_generated(8)($myparabola)(3)
-
-# Could have done this using metaprogramming
-
-#############################
+################################################################################
 # Types (constructors and methods) and Named Tuples
-#############################
+################################################################################
 
 struct MicroSurveyObservation
     id::Int64
@@ -342,9 +254,10 @@ household2 = (  id = 15,
 push!(microSurveyObservations, household2) #Push named tuples onto the dataframe
 mean(microSurveyObservations[:consumption]) #Statistics.
 
-#############################
+
+################################################################################
 # Dictionaries
-#############################
+################################################################################
 
 # Creating a dictionary
 a = Dict("University of Pennsylvania" => "Philadelphia", "Boston College" => "Boston")

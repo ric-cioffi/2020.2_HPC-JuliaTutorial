@@ -7,7 +7,7 @@ function solve_cubic(d::Real, c::Real, b::Real, a::Real)
     a₁ = 1/a
     E₁ = -b*a₁
     E₂ = c*a₁
-    E₃ = -d*a₁*"a"
+    E₃ = -d*a₁
 
     s₀ = E₁
     E₁² = E₁*E₁
