@@ -1,6 +1,6 @@
 module JuliaTutorial
 
-using BenchmarkTools, Debugger, Traceur
+using InteractiveUtils, BenchmarkTools, Debugger, Traceur
 
 include("./dep/07_AdvancedTypes.jl")
 include("./dep/08_solve_cubic.jl")
